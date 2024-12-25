@@ -1,9 +1,6 @@
 package com.batch.exsample.batch_demo2.configuration;
 
-import com.batch.exsample.batch_demo2.batch.BookAuthorProcessor;
-import com.batch.exsample.batch_demo2.batch.BookTitleProcessor;
-import com.batch.exsample.batch_demo2.batch.BookWriter;
-import com.batch.exsample.batch_demo2.batch.RestBookReader;
+import com.batch.exsample.batch_demo2.batch.*;
 import com.batch.exsample.batch_demo2.entity.BookEntity;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -37,6 +34,7 @@ public class BatchConfig {
         return new JobBuilder("bookReadJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                         .start(chunkStep(jobRepository,transactionManager))
+                .next(taskLetStep(jobRepository,transactionManager))
                 .build();
     }
 
@@ -84,5 +82,10 @@ public class BatchConfig {
     @StepScope
     public ItemReader<BookEntity> restBookReader(){
         return new RestBookReader("http://localhost:8080/book", new RestTemplate());
+    }
+
+    @Bean
+    public Step taskLetStep(JobRepository repository,PlatformTransactionManager manager){
+        return new StepBuilder("taskStep",repository).tasklet(new BookTasklet(),manager).build();
     }
 }
