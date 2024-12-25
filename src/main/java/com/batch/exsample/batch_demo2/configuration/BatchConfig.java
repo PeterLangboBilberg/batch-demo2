@@ -33,8 +33,7 @@ public class BatchConfig {
     public Job bookReaderJob(JobRepository jobRepository, PlatformTransactionManager transactionManager){
         return new JobBuilder("bookReadJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
-                        .start(chunkStep(jobRepository,transactionManager))
-                .next(taskLetStep(jobRepository,transactionManager))
+                        .start(taskLetStep(jobRepository,transactionManager))
                 .build();
     }
 
